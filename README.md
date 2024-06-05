@@ -1,6 +1,6 @@
-# Psychoanalysis AI
+# Legal Code AI
 
-You can find the books on https://github.com/nazimboudeffa/psychoanalysis-ai-vector-store-docs
+You can find the books on https://github.com/nazimboudeffa/ai-vector-store-docs
 
 ## Install 
 
