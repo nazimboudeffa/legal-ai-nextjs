@@ -1,14 +1,16 @@
-import { OpenAI } from "langchain/llms/openai";
-import { RetrievalQAChain } from "langchain/chains";
-import { HNSWLib } from "langchain/vectorstores/hnswlib";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { OpenAI, OpenAIEmbeddings } from '@langchain/openai';
+import { HNSWLib } from '@langchain/community/vectorstores/hnswlib';
+import { RetrievalQAChain, loadQAMapReduceChain } from "langchain/chains";
 
 export async function promptChatGPT( apiKey : string, prompt: string, document: string) {
 
-  const model = new OpenAI({ openAIApiKey: apiKey });
+  const model = new OpenAI({
+    model: "gpt-3.5-turbo-instruct", // Defaults to "gpt-3.5-turbo-instruct" if no model provided.
+    temperature: 0.9,
+    apiKey: apiKey, // In Node.js defaults to process.env.OPENAI_API_KEY
+  });
   
   const VECTOR_STORE_PATH = "./src/documents/"+document+"-data-index";
-  let vectorStore;
 
   console.log("Parameters")
   console.log(apiKey)
@@ -16,18 +18,24 @@ export async function promptChatGPT( apiKey : string, prompt: string, document: 
   console.log(document)
 
   console.log("Loading existing vector store...");
-  vectorStore = await HNSWLib.load(
+  let vectorStore = await HNSWLib.load(
     VECTOR_STORE_PATH,
     new OpenAIEmbeddings({ openAIApiKey: apiKey })
   );
 
-  console.log("Creating retrieval chain...");
-  const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever());
+  console.log("Create a chain that uses a map reduce chain and HNSWLib vector store.")
+  const chain = new RetrievalQAChain({
+    combineDocumentsChain: loadQAMapReduceChain(model),
+    retriever: vectorStore.asRetriever(),
+  });
 
-  console.log("Querying chain...");
-  const result = await chain.call({ query: prompt });
+  console.log("Querying ...")
+  const result = await chain.invoke({
+    query: prompt,
+  });
 
-  console.log("Result:", result);
-  
+  console.log(result);
+    
   return result
-}
+
+  }

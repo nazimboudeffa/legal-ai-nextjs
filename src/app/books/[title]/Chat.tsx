@@ -78,6 +78,7 @@ export function Chat() {
 
         setProcessing(true)
         const result = await askQuestion(apiKey, question, selectedDocument.title.toString())
+        console.log(result)
         setProcessing(false)
 
         if (result?.success && result.result) {

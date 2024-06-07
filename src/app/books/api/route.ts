@@ -21,23 +21,16 @@ export async function POST(request: NextRequest) {
             })
         }
 
-        const result = await promptChatGPT(
+        const response = await promptChatGPT(
             chatPrompt.apiKey,
             chatPrompt.prompt,
             chatPrompt.document
         )
 
-        console.log(result)
-
-        if (result) {
-            console.log("Answer")
-            return NextResponse.json({
-                success: true,
-                result: {
-                    text: "reponse",
-                },
-            })
-        }
+        return NextResponse.json({
+            success: true,
+            result: response,
+        })
 
     } catch (error) {
         console.log(error)
